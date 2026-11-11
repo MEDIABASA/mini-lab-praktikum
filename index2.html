@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEDIABASA: Media Digital Asam Basa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+    .beaker-liquid { transition: height 0.5s ease, background-color 0.5s ease; }
+    .strip-test { transition: background-color 0.4s ease, transform 0.5s ease; }
+    .animate-dip { transform: translateY(80px); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen p-4 md:p-8">
+
+  <main class="max-w-6xl mx-auto space-y-8">
+
+    <!-- Mini Lab Virtual -->
+    <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
+      <h2 class="text-2xl font-bold text-slate-800 mb-2 flex items-center">
+        <i class="fa-solid fa-vial-circle-check text-teal-600 mr-3"></i> Simulasi Uji pH Virtual
+      </h2>
+      <p class="text-sm text-slate-500 mb-6">Larutan Asam - Basa dapat dilihat melalui kertas lakmus merah dan kertas lakmus biru. Pada Larutan asam kertas lakmus akan berubah menjadi merah, sedangkan pada larutan basa, kertas lakmus akan berubah menjadi biru. Air merupakan larutan netral, sehingga kertas lakmus tidak mengalami perubahan warna.</p>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Panel Kontrol Sampel & Indikator -->
+        <div class="space-y-6 bg-slate-50 p-5 rounded-xl border border-slate-200/60">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-2">1. Pilih Sampel Larutan (8 Kategori)</label>
+            <select id="sample-select" onchange="updateLab()" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none">
+              <optgroup label="Asam & Basa Kuat / Lemah">
+                <option value="hcl">Asam Klorida (HCl) - Asam Kuat</option>
+                <option value="ch3cooh">Asam Cuka (CH3COOH) - Asam Lemah</option>
+                <option value="nh3">Amonia (NH3) - Basa Lemah</option>
+                <option value="naoh">Natrium Hidroksida (NaOH) - Basa Kuat</option>
+              </optgroup>
+              <optgroup label="Larutan Penyangga (Buffer)">
+                <option value="buffer-asam">Buffer Asam (CH3COOH + CH3COONa)</option>
+                <option value="buffer-basa">Buffer Basa (NH3 + NH4Cl)</option>
+              </optgroup>
+              <optgroup label="Larutan Garam (Hidrolisis)">
+                <option value="garam-asam">Amonium Klorida (NH4Cl) - Garam Asam</option>
+                <option value="garam-basa">Natrium Asetat (CH3COONa) - Garam Basa</option>
+                <option value="nacl">Garam Dapur (NaCl) - Garam Netral</option>
+              </optgroup>
+              <optgroup label="Netral">
+                <option value="air">Air Murni (H2O) - Netral</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-2">2. Pilih Kertas Indikator</label>
+            <div class="space-y-2">
+              <label class="flex items-center space-x-3 p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-teal-400 transition-all">
+                <input type="radio" name="indicator" value="lakmus-merah" checked onchange="updateLab()" class="text-teal-600 focus:ring-teal-500">
+                <span class="text-xs font-medium text-slate-700">Kertas Lakmus Merah</span>
+              </label>
+              <label class="flex items-center space-x-3 p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-teal-400 transition-all">
+                <input type="radio" name="indicator" value="lakmus-biru" onchange="updateLab()" class="text-teal-600 focus:ring-teal-500">
+                <span class="text-xs font-medium text-slate-700">Kertas Lakmus Biru</span>
+              </label>
+              <label class="flex items-center space-x-3 p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-teal-400 transition-all">
+                <input type="radio" name="indicator" value="universal" onchange="updateLab()" class="text-teal-600 focus:ring-teal-500">
+                <span class="text-xs font-medium text-slate-700">Indikator Universal</span>
+              </label>
+            </div>
+          </div>
+
+          <button onclick="dipIndicator()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-vial"></i>
+            <span>Celupkan Kertas Lakmus</span>
+          </button>
+        </div>
+
+        <!-- Animasi Gelas Beaker -->
+        <div class="flex flex-col items-center justify-center bg-slate-100 rounded-xl p-6 relative overflow-hidden min-h-[300px]">
+          <div id="indicator-strip" class="w-8 h-32 bg-rose-400 rounded-t-sm shadow-md absolute -top-16 z-20 strip-test flex flex-col justify-end items-center pb-2">
+            <div id="strip-color-zone" class="w-full h-12 bg-rose-400 rounded-b-sm transition-colors"></div>
+          </div>
+
+          <div class="w-40 h-48 border-4 border-t-0 border-slate-300 rounded-b-3xl relative flex items-end justify-center bg-white/40 backdrop-blur-xs z-10 overflow-hidden shadow-inner">
+            <div id="beaker-liquid" class="w-full h-32 bg-amber-100/60 beaker-liquid relative flex items-center justify-center">
+              <span id="liquid-label" class="text-xs font-bold text-slate-600/70 uppercase tracking-widest select-none text-center px-2">H2O</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hasil Analisis -->
+        <div class="space-y-4 bg-slate-50 p-5 rounded-xl border border-slate-200/60 flex flex-col justify-center">
+          <h4 class="font-bold text-slate-800 text-sm border-b pb-2">Hasil Pengamatan</h4>
+          <div>
+            <p class="text-xs text-slate-500">Estimasi Nilai pH:</p>
+            <p id="res-ph" class="text-3xl font-bold text-teal-700">pH 7</p>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500">Sifat Larutan:</p>
+            <p id="res-sifat" class="text-sm font-semibold text-slate-700">Netral</p>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500">Warna Kertas Akhir:</p>
+            <p id="res-warna" class="text-sm font-semibold text-slate-700">- (Belum dicelup)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Data Sampel Larutan
+    const labData = {
+      hcl: { name: 'HCl (pH 1)', ph: 1, type: 'Asam Kuat', color: 'rgba(244, 63, 94, 0.4)' },
+      ch3cooh: { name: 'CH3COOH (pH 3)', ph: 3, type: 'Asam Lemah', color: 'rgba(251, 113, 133, 0.3)' },
+      nh3: { name: 'Amonia NH3 (pH 11)', ph: 11, type: 'Basa Lemah', color: 'rgba(96, 165, 250, 0.3)' },
+      naoh: { name: 'NaOH 0.1M (pH 13)', ph: 13, type: 'Basa Kuat', color: 'rgba(99, 102, 241, 0.4)' },
+      'buffer-asam': { name: 'Buffer Asam (pH 5)', ph: 5, type: 'Buffer Asam', color: 'rgba(245, 158, 11, 0.3)' },
+      'buffer-basa': { name: 'Buffer Basa (pH 9)', ph: 9, type: 'Buffer Basa', color: 'rgba(168, 85, 247, 0.3)' },
+      'garam-asam': { name: 'NH4Cl (pH 5.5)', ph: 5.5, type: 'Garam Asam (Hidrolisis)', color: 'rgba(225, 29, 72, 0.25)' },
+      'garam-basa': { name: 'CH3COONa (pH 8.5)', ph: 8.5, type: 'Garam Basa (Hidrolisis)', color: 'rgba(14, 165, 233, 0.25)' },
+      nacl: { name: 'NaCl (pH 7)', ph: 7, type: 'Garam Netral', color: 'rgba(186, 230, 253, 0.3)' },
+      air: { name: 'Air Murni H2O (pH 7)', ph: 7, type: 'Netral', color: 'rgba(56, 189, 248, 0.2)' }
+    };
+
+    function updateLab() {
+      const sample = labData[document.getElementById('sample-select').value];
+      document.getElementById('liquid-label').innerText = sample.name;
+      document.getElementById('beaker-liquid').style.backgroundColor = sample.color;
+      
+      const indicator = document.querySelector('input[name="indicator"]:checked').value;
+      const strip = document.getElementById('indicator-strip');
+      const stripZone = document.getElementById('strip-color-zone');
+
+      const initialColors = {
+        'lakmus-merah': { strip: 'bg-rose-400', zone: 'bg-rose-400' },
+        'lakmus-biru': { strip: 'bg-blue-500', zone: 'bg-blue-500' },
+        'universal': { strip: 'bg-amber-200', zone: 'bg-amber-200' }
+      };
+
+      const colorConfig = initialColors[indicator];
+      strip.className = `w-8 h-32 ${colorConfig.strip} rounded-t-sm shadow-md absolute -top-16 z-20 strip-test flex flex-col justify-end items-center pb-2`;
+      stripZone.className = `w-full h-12 ${colorConfig.zone} rounded-b-sm transition-colors`;
+
+      document.getElementById('res-ph').innerText = `pH ${sample.ph}`;
+      document.getElementById('res-sifat').innerText = sample.type;
+      document.getElementById('res-warna').innerText = '- (Belum dicelup)';
+    }
+
+    function dipIndicator() {
+      const strip = document.getElementById('indicator-strip');
+      const stripZone = document.getElementById('strip-color-zone');
+      const sample = labData[document.getElementById('sample-select').value];
+      const indicator = document.querySelector('input[name="indicator"]:checked').value;
+
+      strip.classList.add('animate-dip');
+
+      setTimeout(() => {
+        let finalColor = '';
+        let colorText = '';
+
+        if (indicator === 'lakmus-merah') {
+          finalColor = sample.ph > 7 ? '#3b82f6' : '#fb7185';
+          colorText = sample.ph > 7 ? 'Berubah jadi BIRU' : 'Tetap MERAH';
+        } else if (indicator === 'lakmus-biru') {
+          finalColor = sample.ph < 7 ? '#fb7185' : '#3b82f6';
+          colorText = sample.ph < 7 ? 'Berubah jadi MERAH' : 'Tetap BIRU';
+        } else if (indicator === 'universal') {
+          if (sample.ph <= 2) { finalColor = '#ef4444'; colorText = 'Merah Tua (Asam Kuat)'; }
+          else if (sample.ph <= 5.5) { finalColor = '#f97316'; colorText = 'Jingga / Kuning (Asam Lemah)'; }
+          else if (sample.ph == 7) { finalColor = '#22c55e'; colorText = 'Hijau (Netral)'; }
+          else if (sample.ph <= 11) { finalColor = '#06b6d4'; colorText = 'Biru Muda (Basa Lemah)'; }
+          else { finalColor = '#6366f1'; colorText = 'Ungu Tua (Basa Kuat)'; }
+        }
+
+        stripZone.style.backgroundColor = finalColor;
+        document.getElementById('res-warna').innerText = colorText;
+      }, 500);
+
+      setTimeout(() => {
+        strip.classList.remove('animate-dip');
+      }, 1200);
+    }
+
+    // Inisialisasi awal
+    updateLab();
+  </script>
+</body>
+</html>
